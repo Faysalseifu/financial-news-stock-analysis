@@ -1,0 +1,7 @@
+cat > requirements.txt <<'EOF'
+pandas
+numpy
+textblob
+yfinance
+pytest
+EOF
