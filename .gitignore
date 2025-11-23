@@ -12,3 +12,7 @@ venv/
 data/
 *.csv
 docs/*.pdf
+
+# Local outputs and editor settings
+outputs/
+.vscode/

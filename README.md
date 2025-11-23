@@ -10,5 +10,5 @@ See the `environment-setup` branch for reproducible environment instructions.
 - src/ : project source code
 - notebooks/ : exploratory notebooks
 - tests/ : unit tests
-- docs/ : challenge docs (includes Week 1 PDF)
+
 EOF
