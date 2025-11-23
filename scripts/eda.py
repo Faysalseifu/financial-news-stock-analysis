@@ -37,6 +37,33 @@ def run_eda(data_path: str, outputs_dir: str):
 
     df = read_data(data_path)
 
+    # Detect common column names and normalize
+    # headline column
+    headline_candidates = ["headline", "title", "head"]
+    headline_col = next((c for c in headline_candidates if c in df.columns), None)
+    if headline_col is None:
+        # create empty headline column to avoid exceptions
+        df["headline"] = ""
+        headline_col = "headline"
+    else:
+        # normalize to 'headline'
+        if headline_col != "headline":
+            df["headline"] = df[headline_col].astype(str)
+
+    # publisher/author column
+    author_candidates = ["author", "publisher", "source"]
+    author_col = next((c for c in author_candidates if c in df.columns), None)
+    if author_col is None:
+        df["author"] = ""
+        author_col = "author"
+    else:
+        if author_col != "author":
+            df["author"] = df[author_col].astype(str)
+
+    # date column
+    date_candidates = ["published_at", "date", "published", "time"]
+    date_col = next((c for c in date_candidates if c in df.columns), None)
+
     # HEADLINE LENGTH STATS
     df["headline"] = df["headline"].fillna("").astype(str)
     df["headline_len"] = df["headline"].str.len()
@@ -44,16 +71,16 @@ def run_eda(data_path: str, outputs_dir: str):
     headline_stats.to_csv(os.path.join(outputs_dir, "headline_length_stats.csv"))
 
     # PUBLISHER COUNTS
-    if "author" not in df.columns:
-        df["author"] = ""
-    df["author"] = df["author"].fillna("Unknown")
+    # normalize author/publisher counts: treat empty strings and NaN as Unknown
+    df["author"] = df["author"].fillna("").astype(str)
+    df.loc[df["author"].str.strip() == "", "author"] = "Unknown"
     publisher_counts = df["author"].value_counts()
     publisher_counts.to_csv(os.path.join(outputs_dir, "publisher_counts.csv"))
 
     # PUBLICATION DATE / TIME TRENDS
-    if "published_at" in df.columns:
-        # Robustly convert published_at to datetimes. Use utc=True to avoid mixed tz issues
-        df["date"] = pd.to_datetime(df["published_at"], errors="coerce", utc=True)
+    if date_col is not None:
+        # Robustly convert the detected date column to datetimes. Use utc=True to avoid mixed tz issues
+        df["date"] = pd.to_datetime(df[date_col], errors="coerce", utc=True)
 
         # Only operate on rows where date parsing succeeded
         valid = df["date"].notna()
