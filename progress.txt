@@ -1,0 +1,119 @@
+Financial News Stock Analysis - Progress Report
+Date: 2025-11-23
+
+Executive summary
+- Repository created and pushed; analysis work performed on branch `task-1`.
+- Implemented a reproducible EDA pipeline and supporting tests; executed EDA and saved outputs to `outputs/`.
+- Performed descriptive statistics, publisher analysis, time-series analysis, and basic text analysis (top tokens/ngrams).
+- CI configured (GitHub Actions) to run tests on push; a smoke test that runs the EDA script was added.
+
+Repository status and structure (current)
+- .vscode/settings.json
+- .github/workflows/unittests.yml
+- .gitignore (ignores `venv/`, `outputs/`, `.vscode/`)
+- requirements.txt
+- README.md
+- src/__init__.py
+- notebooks/__init__.py and notebooks/README.md
+- scripts/__init__.py, scripts/eda.py, scripts/README.md
+- tests/__init__.py, tests/test_eda.py
+- data/raw_analyst_ratings.csv
+- outputs/ (generated at runtime; not committed)
+
+Environment setup (Windows - detailed steps for reproducibility)
+1. Create a virtual environment:
+   python -m venv venv
+
+2. Activate the virtual environment:
+   - PowerShell:
+     .\venv\Scripts\Activate.ps1
+   - Command Prompt (cmd):
+     venv\Scripts\activate.bat
+
+3. Upgrade pip and install dependencies:
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   # Recommended extras for NLP/topic modeling:
+   pip install scikit-learn nltk
+
+4. Optional: install Jupyter for interactive notebooks:
+   pip install jupyterlab
+
+How to run the analysis and tests
+- Run the reproducible EDA pipeline (non-interactive):
+  python scripts/eda.py
+- Run the topic-modeling scaffold (if present):
+  python scripts/topic_modeling.py
+- Run unit tests / CI smoke test:
+  pytest -q
+
+Key dependencies (ensure these are installed)
+- pandas, numpy
+- scikit-learn (CountVectorizer and topic-modeling support)
+- nltk (optional for advanced NLP preprocessing)
+- matplotlib, seaborn (for plotting, optional)
+- pytest (for tests)
+
+Outputs produced by the EDA pipeline
+- outputs/headline_length_stats.csv  — headline length descriptive statistics
+- outputs/publisher_counts.csv      — article counts per publisher/author
+- outputs/daily_publication_counts.csv — article counts per day (time series)
+- outputs/hourly_publication_counts.csv — counts by hour of day
+- outputs/top_keywords.csv         — top tokens / n-grams from headlines
+- outputs/author_domain_counts_by_analysis.csv — email-domain counts extracted from author fields
+
+Sample author domain counts (from outputs/author_domain_counts_by_analysis.csv)
+- benzinga.com — 7937
+- gmail.com — 139
+- andyswan.com — 5
+- investdiva.com — 2
+- tothetick.com — 2
+- eosdetroit.io — 1
+- forextraininggroup.com — 1
+- stockmetrix.net — 1
+
+Analyses performed and key findings
+1) Descriptive statistics (headline lengths)
+   - Total headlines processed: 1,407,328
+   - Mean headline length: ~73 characters
+   - Distribution is wide (std ~41), with lengths from 3 to 512 characters.
+
+2) Publisher analysis
+   - Publisher concentration: a small set of authors/publishers produces a large fraction of the feed.
+   - Top publishers: Paul Quintaro, Lisa Levin, Benzinga Newsdesk, Charles Gross, Monica Gerson, etc.
+   - Per-publisher differences: some authors specialize in earnings/analyst updates (keywords: `eps`, `est`, `pt`, `raises`, `lowers`), others in market-movement roundups (`stocks`, `moving`, `mid day`), and specialty authors focus on ETFs or options.
+
+3) Time-series analysis
+   - Date range in dataset: ~2011-04-28 through 2020-06-11.
+   - Peak days (examples): 2020-03-12 (973 articles), 2020-06-05 (932), 2020-06-10 (807).
+   - Most active month: 2020-05 with 9,333 articles.
+   - Weekly distribution: publishing concentrated on weekdays (Thursday highest); weekends minimal.
+   - Hourly distribution: publishing concentrated in business hours (peak around 13:00–16:00 UTC in the dataset); lower overnight activity.
+
+4) Text analysis (keywords / n-grams)
+   - Extracted top unigrams/bigrams across headlines (saved to `outputs/top_keywords.csv`).
+   - Top tokens include: `vs`, `stocks`, `est`, `eps`, `market`, `price target`, `earnings scheduled`, `upgrades`, `downgrades`, etc.
+   - Topic-modeling scaffold implemented; LDA on short headlines is limited — recommend using aggregated text or embedding-based methods (BERTopic) for better topics.
+
+CI and development practices
+- GitHub Actions workflow (`.github/workflows/unittests.yml`) runs tests on push.
+- `tests/test_eda.py` is a smoke test that runs `scripts/eda.py` and asserts that expected CSV outputs exist.
+- Recommended workflow: commit at least 3 times daily on `task-1` with descriptive messages, keep CI green, and add tests for new scripts.
+
+Limitations and data-quality notes
+- The original `date`/`published_at` column contains mixed formats and timezones; the EDA pipeline parses dates with `pd.to_datetime(..., errors='coerce', utc=True)` and ignores rows with unparseable dates for time-series aggregations. This approach prevents runtime failures but may drop noisy rows — consider a pre-clean step if strict completeness is required.
+- Headline-only topic modeling has limited context; consider aggregating headlines by day or publisher or using article bodies for better topic inference.
+
+Recommended next steps (pick one or more)
+1) Generate visualizations and save PNGs to `outputs/`:
+   - Daily time series with 7-day moving average
+   - Heatmap of hour-of-day × weekday publication frequency
+   - Bar chart of top publishers by article share
+2) Extract and summarize headlines for top spike days (top 10) to identify event drivers.
+3) Produce per-publisher keyword lists and sample headlines for manual verification.
+4) Improve topic modeling using embeddings (BERTopic) or aggregate text per-document for LDA stability.
+5) Add `scikit-learn` and `nltk` to `requirements.txt` and update CI to install them (if topic modeling will run in CI).
+
+If you need, I can perform any of the recommended next steps and save outputs (PNGs, CSVs, or a notebook) to the repository. Please indicate which action(s) you want me to run next.
+
+End of report.
