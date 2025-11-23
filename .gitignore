@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/
+*.csv
+docs/*.pdf
+
+# Local outputs and editor settings
+outputs/
+.vscode/
