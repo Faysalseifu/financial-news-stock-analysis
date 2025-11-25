@@ -30,4 +30,8 @@ dash
 prophet
 
 # Miscellaneous
+<<<<<<< HEAD
 jupyter
+=======
+jupyter
+>>>>>>> task-1
